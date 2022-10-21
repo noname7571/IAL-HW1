@@ -72,7 +72,7 @@ void List_Error() {
  *
  * @param list Ukazatel na strukturu jednosměrně vázaného seznamu
  */
-void List_Init( List *list ) {
+void List_Init( List *list ) { // initializes the list by setting active and first elements to null
 	list->activeElement = NULL;
 	list->firstElement = NULL;
 }
@@ -85,15 +85,15 @@ void List_Init( List *list ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  **/
 void List_Dispose( List *list ) {
-	ListElementPtr elemPtr;
+	ListElementPtr elemPtr; // helping element that will be freed
 
-	while (list->firstElement != NULL) {
+	while (list->firstElement != NULL) { // frees first element from list until there are no more elements
 		elemPtr = list->firstElement;
 		list->firstElement = elemPtr->nextElement;
 		free(elemPtr);
 	}
 
-	list->activeElement = NULL;
+	list->activeElement = NULL; // if there was an active element in the list, set it to null
 }
 
 /**
@@ -105,13 +105,14 @@ void List_Dispose( List *list ) {
  * @param data Hodnota k vložení na začátek seznamu
  */
 void List_InsertFirst( List *list, int data ) {
-	ListElementPtr newElem = (ListElementPtr)malloc(sizeof(struct ListElement));
+	ListElementPtr newElem = (ListElementPtr)malloc(sizeof(struct ListElement)); // allocs memory for new element
 	
 	if (newElem != NULL) {
 		newElem->data = data;
-		newElem->nextElement = list->firstElement;
+		newElem->nextElement = list->firstElement; // puts new element on the start of the list
 		list->firstElement = newElem;
-	} else {
+	
+	} else { // if malloc fails, call error function
 		List_Error();
 		return;
 	}
@@ -124,7 +125,7 @@ void List_InsertFirst( List *list, int data ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  */
 void List_First( List *list ) {
-	list->activeElement = list->firstElement;
+	list->activeElement = list->firstElement; // sets first element to be the active element of the list
 }
 
 /**
@@ -136,8 +137,9 @@ void List_First( List *list ) {
  */
 void List_GetFirst( List *list, int *dataPtr ) {
 	if (list->firstElement != NULL) {
-		*dataPtr = list->firstElement->data;
-	} else {
+		*dataPtr = list->firstElement->data; // returns value of the first element in the list
+	
+	} else { // if the list is empty, call error function
 		List_Error();
 		return;
 	}
@@ -151,13 +153,14 @@ void List_GetFirst( List *list, int *dataPtr ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  */
 void List_DeleteFirst( List *list ) {
-	if (list->firstElement != NULL) {
-		if (list->firstElement == list->activeElement) {
+	if (list->firstElement != NULL) { // deletes, first element of the list if the list is not empty
+		
+		if (list->firstElement == list->activeElement) { // if there is only one element in the list, set active element to null
 			list->activeElement = NULL;
 		}
 		
-		ListElementPtr elemPtr = list->firstElement;
-		list->firstElement = elemPtr->nextElement;
+		ListElementPtr elemPtr = list->firstElement; // helping element that will be freed
+		list->firstElement = elemPtr->nextElement; // sets first element to the second element of the list
 		free(elemPtr);
 	}
 }
@@ -170,9 +173,9 @@ void List_DeleteFirst( List *list ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  */
 void List_DeleteAfter( List *list ) {
-	if ((list->activeElement != NULL) && (list->activeElement->nextElement != NULL)) {
-		ListElementPtr elemPtr = list->activeElement->nextElement;
-		list->activeElement->nextElement = elemPtr->nextElement;
+	if ((list->activeElement != NULL) && (list->activeElement->nextElement != NULL)) { // removes element after active element if the list is active or the active element isnt the last element of the list
+		ListElementPtr elemPtr = list->activeElement->nextElement; // helping element is set to the element after the active element and will be freed
+		list->activeElement->nextElement = elemPtr->nextElement; // sets next element from the active element to the element next to helping element
 		free(elemPtr);
 	}
 }
@@ -188,16 +191,16 @@ void List_DeleteAfter( List *list ) {
  */
 void List_InsertAfter( List *list, int data ) {
 	if (list->activeElement != NULL) {
-		ListElementPtr newElem = (ListElementPtr)malloc(sizeof(struct ListElement));
+		ListElementPtr newElem = (ListElementPtr)malloc(sizeof(struct ListElement)); // allocs memory for new element
 		
-		if (newElem == NULL) {
+		if (newElem == NULL) { // if malloc fails, call error function
 			List_Error();
 			return;
 		}
 		
-		newElem->data = data;
-		newElem->nextElement = list->activeElement->nextElement;
-		list->activeElement->nextElement = newElem;
+		newElem->data = data; // sets data value of the new element
+		newElem->nextElement = list->activeElement->nextElement; // sets next element of a new element to the element after the active element
+		list->activeElement->nextElement = newElem; // sets next element of active element to the new element
 	}
 }
 
@@ -210,8 +213,9 @@ void List_InsertAfter( List *list, int data ) {
  */
 void List_GetValue( List *list, int *dataPtr ) {
 	if (list->activeElement != NULL) {
-		*dataPtr = list->activeElement->data;
-	} else {
+		*dataPtr = list->activeElement->data; // returns data from an active element
+	
+	} else { // if the list is not active, call error function
 		List_Error();
 		return;
 	}
@@ -225,7 +229,7 @@ void List_GetValue( List *list, int *dataPtr ) {
  * @param data Nová hodnota právě aktivního prvku
  */
 void List_SetValue( List *list, int data ) {
-	if (list->activeElement != NULL) {
+	if (list->activeElement != NULL) { // sets data of an active element to the data given in the function if the list is active
 		list->activeElement->data = data;
 	}
 }
@@ -238,10 +242,12 @@ void List_SetValue( List *list, int data ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  */
 void List_Next( List *list ) {
-	if (list->activeElement != NULL) {
-		if (list->activeElement->nextElement != NULL) {
+	if (list->activeElement != NULL) { // list have to be active
+		
+		if (list->activeElement->nextElement != NULL) { // if the active element isnt the last element, move active element to the next element
 			list->activeElement = list->activeElement->nextElement;
-		} else {
+		
+		} else { // otherwise set active element to null
 			list->activeElement = NULL;
 		}
 	}
@@ -254,7 +260,7 @@ void List_Next( List *list ) {
  * @param list Ukazatel na inicializovanou strukturu jednosměrně vázaného seznamu
  */
 int List_IsActive( List *list ) {
-	return list->activeElement != NULL;
+	return list->activeElement != NULL; // return 0 if the list is not active
 }
 
 /* Konec c201.c */
