@@ -94,14 +94,16 @@ void Queue_Error( int error_code ) {
  * @param stack Ukazatel na strukturu fronty
  */
 void Queue_Init( Queue *queue ) {
-	if (queue != NULL) {
+	if (queue != NULL) { // sets all values in queue to *
+		
 		for (int i = 0; i < QUEUE_SIZE; i++) {
 			queue->array[i] = '*';
 		}
 		
-		queue->firstIndex = 0;
+		queue->firstIndex = 0; // sets first and free indexes to 0
 		queue->freeIndex = 0;
-	} else {
+	
+	} else { // if queue doesnt exist, call error function
 		Queue_Error(QERR_INIT);
 		return;
 	}
@@ -115,7 +117,7 @@ void Queue_Init( Queue *queue ) {
  * @param index Aktuální index
  */
 int nextIndex( int index ) {
-	return (index + 1) % QUEUE_SIZE;
+	return (index + 1) % QUEUE_SIZE; // returns index of a next element in a queue
 }
 
 /**
@@ -125,7 +127,7 @@ int nextIndex( int index ) {
  * @param queue Ukazatel na inicializovanou strukturu fronty
  */
 int Queue_IsEmpty( const Queue *queue ) {
-	return (queue->firstIndex == queue->freeIndex);
+	return (queue->firstIndex == queue->freeIndex); // returns 0 if a queue isnt empty
 }
 
 /**
@@ -136,7 +138,7 @@ int Queue_IsEmpty( const Queue *queue ) {
  * @param queue Ukazatel na inicializovanou strukturu fronty
  */
 int Queue_IsFull( const Queue *queue ) {
-	return (nextIndex(queue->freeIndex) == queue->firstIndex);
+	return (nextIndex(queue->freeIndex) == queue->firstIndex); // returns 0 if a queue isnt full
 }
 
 /**
@@ -153,11 +155,12 @@ int Queue_IsFull( const Queue *queue ) {
  * @param dataPtr Ukazatel na cílovou proměnnou
  */
 void Queue_Front( const Queue *queue, char *dataPtr ) {
-	if (Queue_IsEmpty(queue) != 0) {
+	if (Queue_IsEmpty(queue) != 0) { // if the queue is empty, call error function
 		Queue_Error(QERR_FRONT);
 		return;
+	
 	} else {
-		*dataPtr = queue->array[queue->firstIndex];
+		*dataPtr = queue->array[queue->firstIndex]; // returns sign of a first element in a queue
 	}
 }
 
@@ -170,11 +173,12 @@ void Queue_Front( const Queue *queue, char *dataPtr ) {
  * @param queue Ukazatel na inicializovanou strukturu fronty
  */
 void Queue_Remove( Queue *queue ) {
-	if (Queue_IsEmpty(queue) != 0) {
+	if (Queue_IsEmpty(queue) != 0) { // if the queue is empty, call error function
 		Queue_Error(QERR_REMOVE);
 		return;
+	
 	} else {
-		queue->firstIndex = nextIndex(queue->firstIndex);
+		queue->firstIndex = nextIndex(queue->firstIndex); // removes the first element in the queue by moving the first index
 	}
 }
 
@@ -189,12 +193,13 @@ void Queue_Remove( Queue *queue ) {
  * @param dataPtr Ukazatel na cílovou proměnnou
  */
 void Queue_Dequeue( Queue *queue, char *dataPtr ) {
-	if (Queue_IsEmpty(queue) != 0) {
+	if (Queue_IsEmpty(queue) != 0) { // if the queue is empty, call error function
 		Queue_Error(QERR_DEQUEUE);
 		return;
+	
 	} else {
-		Queue_Front(queue, dataPtr);
-		Queue_Remove(queue);
+		Queue_Front(queue, dataPtr); // returns sign of the first element
+		Queue_Remove(queue); // then removes it
 	}
 }
 
@@ -211,12 +216,13 @@ void Queue_Dequeue( Queue *queue, char *dataPtr ) {
  * @param data Znak k vložení
  */
 void Queue_Enqueue( Queue *queue, char data ) {
-	if (Queue_IsFull(queue) != 0) {
+	if (Queue_IsFull(queue) != 0) { // if the queue is full, call error function
 		Queue_Error(QERR_ENQUEUE);
 		return;
+	
 	} else {
-		queue->array[queue->freeIndex] = data;
-		queue->freeIndex = nextIndex(queue->freeIndex);
+		queue->array[queue->freeIndex] = data; // inserts new element at first free index in queue
+		queue->freeIndex = nextIndex(queue->freeIndex); // moves the free index after the new element
 	}
 }
 
